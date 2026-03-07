@@ -6,9 +6,10 @@
 
 ---
 
+
 ## Demo
 
-*[Insert split-screen demo GIF here — webcam left, Isaac Sim right]*
+<img width="2560" height="1600" alt="Screenshot from 2026-03-07 01-45-33" src="https://github.com/user-attachments/assets/cac8d764-c589-422d-9616-7daa08e49c20" />
 
 ---
 
