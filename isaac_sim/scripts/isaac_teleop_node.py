@@ -1,7 +1,8 @@
 """
 isaac_teleop_node.py
 Receives hand pose via UDP → moves Franka in Isaac Sim.
-Uses position-only differential IK (more stable, elbow configuration preserved).
+Uses full pose differential IK (command_type=pose) — engages all 7 joints.
+Gripper orientation fixed pointing down toward table.
 """
 
 import argparse
@@ -37,9 +38,13 @@ ROOM_USD = (
 TABLE_H       = 0.8
 UDP_PORT      = 5005
 ARM_JOINT_IDS = list(range(7))
-HOME_POS      = np.array([0.4, 0.0, 1.05])
-MAX_DELTA     = 0.02       # max meters per sim step
+HOME_POS      = np.array([0.55, 0.0, 1.15])
+MAX_DELTA     = 0.05
 NO_HAND_TIMEOUT = 2.0
+
+# Fixed downward-pointing quaternion (gripper points -Z = down toward table)
+# This is [w, x, y, z] = [0, 1, 0, 0] = 180deg rotation around X axis
+GRIPPER_DOWN_QUAT = torch.tensor([[0.0, 1.0, 0.0, 0.0]], dtype=torch.float32)
 
 
 class TeleopState:
@@ -113,10 +118,10 @@ def build_scene():
         init_state=ArticulationCfg.InitialStateCfg(
             pos=(0.0, 0.0, TABLE_H),
             joint_pos={
-                "panda_joint1":  0.0,  "panda_joint2": -0.569,
-                "panda_joint3":  0.0,  "panda_joint4": -2.810,
-                "panda_joint5":  0.0,  "panda_joint6":  3.037,
-                "panda_joint7":  0.785,
+                "panda_joint1":  0.0,  "panda_joint2": 0.181,
+                "panda_joint3":  0.0,  "panda_joint4": -1.860,
+                "panda_joint5":  0.0,  "panda_joint6": 2.087,
+                "panda_joint7": 0.691,
             },
         ),
         actuators={
@@ -138,13 +143,13 @@ def main():
     franka, cup = build_scene()
     sim.reset()
 
-    # Position-only IK — more stable, preserves arm configuration
+    # Full pose IK — uses complete 6x7 Jacobian, engages all joints
     ik_controller = DifferentialIKController(
         DifferentialIKControllerCfg(
-            command_type="position",       # position only, not pose
+            command_type="pose",
             use_relative_mode=False,
             ik_method="dls",
-            ik_params={"lambda_val": 0.1},
+            ik_params={"lambda_val": 0.05},
         ),
         num_envs=1, device="cuda:0"
     )
@@ -153,18 +158,27 @@ def main():
     hand_idx   = franka.find_bodies("panda_hand")[0][0]
     jacobi_idx = hand_idx - 1
 
+    # Move GRIPPER_DOWN_QUAT to GPU
+    gripper_down_quat = GRIPPER_DOWN_QUAT.to("cuda:0")
+
+    # Force home pose - init_state alone insufficient in standalone scripts
+    home_q = franka.data.default_joint_pos.clone()
+    home_v = franka.data.default_joint_vel.clone()
+    franka.write_joint_state_to_sim(home_q, home_v)
+    franka.reset()
+    sim.step()
+    franka.update(sim.get_physics_dt())
     print("Isaac teleop ready. Waiting for hand data on UDP port 5005...")
 
     smooth_target = HOME_POS.copy()
 
-    # Skip first step — Jacobians not valid until after first sim.step()
+    # Skip first step
     sim.step()
     franka.update(sim.get_physics_dt())
 
     step = 0
     while simulation_app.is_running():
 
-        # Edge case: no hand → return to home
         with state.lock:
             raw_target   = state.target_pos.copy()
             gripper_norm = state.gripper_norm
@@ -175,8 +189,8 @@ def main():
             gripper_norm = 1.0
 
         # Velocity clamp
-        delta      = raw_target - smooth_target
-        d_norm     = np.linalg.norm(delta)
+        delta  = raw_target - smooth_target
+        d_norm = np.linalg.norm(delta)
         if d_norm > MAX_DELTA:
             delta = delta * (MAX_DELTA / d_norm)
         smooth_target = smooth_target + delta
@@ -186,7 +200,7 @@ def main():
         smooth_target[1] = np.clip(smooth_target[1], -0.4, 0.4)
         smooth_target[2] = np.clip(smooth_target[2], TABLE_H + 0.05, 1.4)
 
-        # Jacobian (world → base frame)
+        # Full Jacobian (world → base frame)
         jacobian_w = franka.root_physx_view.get_jacobians()[:, jacobi_idx, :, ARM_JOINT_IDS]
         root_rot   = matrix_from_quat(quat_inv(franka.data.root_quat_w))
         jacobian_b = jacobian_w.clone()
@@ -200,20 +214,19 @@ def main():
             franka.data.body_quat_w[:, hand_idx],
         )
 
-        # Target position in base frame
+        # Target in base frame with fixed downward orientation
         tgt_w = torch.tensor(smooth_target, dtype=torch.float32, device="cuda:0").unsqueeze(0)
         tgt_b, _ = subtract_frame_transforms(
             franka.data.root_pos_w, franka.data.root_quat_w, tgt_w)
 
-        # IK — position only command (3D)
-        ik_controller.set_command(tgt_b, ee_quat=eef_quat_b)
+        # Full 7D pose command [x, y, z, qw, qx, qy, qz]
+        ik_controller.set_command(torch.cat([tgt_b, gripper_down_quat], dim=-1))
         joint_pos_des = ik_controller.compute(
             eef_pos_b, eef_quat_b,
-            jacobian_b[:, :3, :],   # position rows only for position command
+            jacobian_b,   # full 6x7 Jacobian
             franka.data.joint_pos[:, ARM_JOINT_IDS],
         )
 
-        # Apply
         franka.set_joint_position_target(joint_pos_des, joint_ids=ARM_JOINT_IDS)
         franka.set_joint_position_target(
             torch.tensor([[gripper_norm * 0.04, gripper_norm * 0.04]], device="cuda:0"),
@@ -228,7 +241,7 @@ def main():
 
         if step % 200 == 0:
             status = "HAND" if hand_age < NO_HAND_TIMEOUT else "HOME"
-            print(f"Step {step} | {status} | Smooth: {smooth_target.round(3)} | Gripper: {gripper_norm:.2f}")
+            print(f"Step {step} | {status} | Target: {smooth_target.round(3)} | Gripper: {gripper_norm:.2f} | joints: {joint_pos_des.cpu().numpy().round(3)}")
 
 
 if __name__ == "__main__":
