@@ -113,7 +113,7 @@ def main():
     sim = sim_utils.SimulationContext(
         sim_utils.SimulationCfg(dt=0.01, device="cuda:0")
     )
-    sim.set_camera_view(eye=[1.5, 1.5, 1.5], target=[0.4, 0.0, 0.9])
+    sim.set_camera_view(eye=[-0.3, 0.0, 1.4], target=[0.6, 0.0, 0.85])
 
     franka, cup = build_scene()
 
