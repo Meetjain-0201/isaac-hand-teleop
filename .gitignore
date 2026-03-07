@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+*.so
+
+# Environments
+.env
+.venv
+env/
+venv/
+*.conda
+
+# MuJoCo / MediaPipe model cache
+*.task
+mujoco_prototype/hand_landmarker.task
+
+# Isaac Sim
+*.usd.bak
+_isaac_sim/
+
+# ROS2 build artifacts
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+
+# Misc
+.DS_Store
+*.swp
