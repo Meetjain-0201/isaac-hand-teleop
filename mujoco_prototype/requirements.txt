@@ -1,0 +1,7 @@
+mujoco==3.5.0
+robot_descriptions
+dm_control
+numpy==1.26.4
+scipy
+mediapipe==0.10.21
+opencv-python==4.9.0.80
