@@ -3,6 +3,8 @@
 **Real-time bimanual hand teleoperation of a Franka Panda robot arm in NVIDIA Isaac Sim**
 
 > Right hand controls XY position on the table. Left hand controls height and gripper. Pick up objects and place them using only a webcam.
+<img width="1408" height="768" alt="Drawing sketchpad" src="https://github.com/user-attachments/assets/24f88201-ea57-4827-bf27-4f7dda26ec60" />
+<img width="1408" height="768" alt="Drawing-2 sketchpad" src="https://github.com/user-attachments/assets/05f9ee25-5e86-4080-9a26-39043d42d09a" />
 
 ---
 
