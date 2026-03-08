@@ -16,7 +16,7 @@
 
 ## What This Is
 
-A real-time teleoperation system where hand movements captured by a standard webcam are mapped to end-effector commands for a Franka Panda robot arm simulated in NVIDIA Isaac Sim 5.1. No depth camera, no VR headset, no special hardware — just a webcam.
+A real-time teleoperation system where hand movements captured by a standard webcam are mapped to end-effector commands for a Franka Panda robot arm simulated in NVIDIA Isaac Sim 5.1. No depth camera, no VR headset, no special hardware... just a webcam.
 
 The system is designed as a VR-style puppeteering interface: you are the controller, the robot is your digital arm. This architecture is directly applicable to imitation learning data collection, which is the natural next step (Phase 4).
 
