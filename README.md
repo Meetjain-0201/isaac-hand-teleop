@@ -158,7 +158,7 @@ pip install -e source/isaaclab_assets
 pip install h5py  # optional, suppresses warning
 ```
 
-### Phase 0 — MuJoCo Prototype (optional validation)
+### MuJoCo Prototype
 
 ```bash
 conda create -n robot_kitchen python=3.10 -y
@@ -223,7 +223,7 @@ See `docs/challenges.md` for detailed writeups on:
 
 ## What's Next
 
-- **Phase 4 — Imitation Learning:** Collect demonstrations via teleoperation and train a Behavior Cloning policy to perform pick and place autonomously
+- **Imitation Learning:** Collect demonstrations via teleoperation and train a Behavior Cloning policy to perform pick and place autonomously
 - **Wrist orientation tracking:** Map hand rotation to end effector orientation
 - **Depth camera integration:** RealSense D435 for metric Z control
 - **Docker setup:** Containerize Isaac Sim + Isaac Lab stack
