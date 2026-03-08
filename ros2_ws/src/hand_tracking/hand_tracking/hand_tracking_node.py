@@ -30,11 +30,11 @@ MODEL_URL  = ("https://storage.googleapis.com/mediapipe-models/hand_landmarker/"
 MODEL_PATH = os.path.expanduser("~/hand_landmarker.task")
 
 # Right hand controls X/Y workspace
-WS_X_RANGE = (0.25, 0.65)   # hand Y in image → robot X (forward/back)
-WS_Y_RANGE = (-0.30, 0.30)  # hand X in image → robot Y (left/right)
+WS_X_RANGE = (0.25, 0.65)   # hand Y in image -> robot X (forward/back)
+WS_Y_RANGE = (-0.30, 0.30)  # hand X in image -> robot Y (left/right)
 
 # Left hand controls Z
-WS_Z_RANGE = (0.86, 1.25)   # left hand Y in image → robot Z (height)
+WS_Z_RANGE = (0.86, 1.25)   # left hand Y in image -> robot Z (height)
 
 EMA_ALPHA     = 0.30
 PINCH_CLOSE_M = 0.03
@@ -115,7 +115,7 @@ class HandTrackingNode(Node):
                     if i < len(result.hand_world_landmarks):
                         left_world_lm = result.hand_world_landmarks[i]
 
-        # ── RIGHT HAND → X/Y ──────────────────────────────────────────────
+        # RIGHT HAND -> X/Y
         if right_norm_lm:
             wrist = right_norm_lm[WRIST]
             rx = float(np.interp(1.0 - wrist.y, [0.0, 1.0], WS_X_RANGE))
@@ -137,10 +137,10 @@ class HandTrackingNode(Node):
             if self.smooth_pos is None:
                 self.smooth_pos = np.array([0.45, 0.0])
 
-        # LEFT HAND → Z + gripper 
+        # LEFT HAND -> Z + gripper 
         if left_norm_lm:
             wrist_l = left_norm_lm[WRIST]
-            # Left hand height in image → Z
+            # Left hand height in image -> Z
             rz = float(np.interp(1.0 - wrist_l.y, [0.0, 1.0], WS_Z_RANGE))
             self.smooth_z = EMA_ALPHA * rz + (1 - EMA_ALPHA) * self.smooth_z
 
