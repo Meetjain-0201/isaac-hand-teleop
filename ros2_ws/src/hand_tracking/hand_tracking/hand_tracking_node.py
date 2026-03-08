@@ -137,7 +137,7 @@ class HandTrackingNode(Node):
             if self.smooth_pos is None:
                 self.smooth_pos = np.array([0.45, 0.0])
 
-        # ── LEFT HAND → Z + gripper ───────────────────────────────────────
+        # LEFT HAND → Z + gripper 
         if left_norm_lm:
             wrist_l = left_norm_lm[WRIST]
             # Left hand height in image → Z
@@ -174,14 +174,14 @@ class HandTrackingNode(Node):
             cv2.circle(frame, (ix, iy), 6, (0, 0, 255), -1)
             cv2.line(frame, (tx, ty), (ix, iy), (0, 0, 255), 2)
 
-        # ── Build final target ────────────────────────────────────────────
+        # Build final target  
         final_pos = np.array([
             self.smooth_pos[0],
             self.smooth_pos[1],
             self.smooth_z
         ])
 
-        # ── ROS2 publish ──────────────────────────────────────────────────
+        # ROS2 publish 
         pose_msg = PoseStamped()
         pose_msg.header.stamp    = self.get_clock().now().to_msg()
         pose_msg.header.frame_id = "robot_base"
@@ -195,7 +195,7 @@ class HandTrackingNode(Node):
         gmsg.data = float(gripper_norm)
         self.pub_gripper.publish(gmsg)
 
-        # ── UDP to Isaac Sim ──────────────────────────────────────────────
+        # UDP to Isaac Sim
         packet = json.dumps({
             "x": float(final_pos[0]),
             "y": float(final_pos[1]),
@@ -204,7 +204,7 @@ class HandTrackingNode(Node):
         }).encode()
         self.udp_sock.sendto(packet, (UDP_IP, UDP_PORT))
 
-        # ── Overlay ───────────────────────────────────────────────────────
+        # Overlay
         state = "CLOSED" if gripper_norm < 0.1 else "OPEN"
         color = (0, 255, 0) if state == "OPEN" else (0, 0, 255)
         cv2.putText(frame, f"Gripper: {state}  [{gripper_norm:.2f}]",
