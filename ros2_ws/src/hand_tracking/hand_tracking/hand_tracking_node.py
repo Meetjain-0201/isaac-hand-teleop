@@ -2,8 +2,8 @@
 """
 hand_tracking_node.py
 Two-hand teleoperation:
-  RIGHT hand → X/Y position on table
-  LEFT hand  → Z (height) + gripper
+  RIGHT hand -> X/Y position on table
+  LEFT hand  -> Z (height) + gripper
 
 Publishes ROS2 topics + sends UDP to Isaac Sim.
 """
