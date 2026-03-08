@@ -44,7 +44,7 @@ CUP_H    = 0.08
 SPACING  = 0.07   # center-to-center gap between cups in same row
 PYR_X    = 0.55   # how far forward the pyramid sits on the table
 
-# ── Pre-placed cups (kinematic — they don't fall) ────────────────────────────
+# Pre-placed cups (kinematic — they don't fall)
 # Row 1: 3 cups, centered at y=0
 # y positions: -0.07, 0.00, +0.07
 ROW1_Z = TABLE_H + CUP_H / 2.0
