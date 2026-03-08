@@ -8,9 +8,9 @@
 
 
 ## Demo
+![demo1](https://github.com/user-attachments/assets/70a92dcd-5ebf-483a-aa84-b997f8f4d706)
+![demo2](https://github.com/user-attachments/assets/e18062bd-67a1-4e65-b63d-6fc0f43f9393)
 
-<img width="2560" height="1600" alt="Screenshot from Screencast from 03-06-2026 10:56:53 PM webm" src="https://github.com/user-attachments/assets/53879d60-95c4-4926-9da8-180a84fc6fe1" />
-<img width="2560" height="1600" alt="Screenshot from 2026-03-07 01-45-33" src="https://github.com/user-attachments/assets/cac8d764-c589-422d-9616-7daa08e49c20" />
 
 ---
 
