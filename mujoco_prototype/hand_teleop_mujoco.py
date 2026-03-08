@@ -20,24 +20,24 @@ from mediapipe.tasks.python import vision as mp_vision
 
 from franka_kitchen_env import FrankaKitchenEnv
 
-# ── Model ────────────────────────────────────────────────────────────────────
+# Model
 MODEL_URL  = ("https://storage.googleapis.com/mediapipe-models/hand_landmarker/"
               "hand_landmarker/float16/latest/hand_landmarker.task")
 MODEL_PATH = "hand_landmarker.task"
 
-# ── Workspace mapping ────────────────────────────────────────────────────────
+# Workspace mapping
 WS_X_RANGE = (0.25, 0.65)
 WS_Y_RANGE = (-0.30, 0.30)
 WS_Z_RANGE = (0.20, 0.70)
 
-# ── Smoothing ────────────────────────────────────────────────────────────────
+# Smoothing
 EMA_ALPHA = 0.30
 
-# ── Gripper thresholds in real meters (world landmarks) ──────────────────────
+# Gripper thresholds in real meters (world landmarks)
 PINCH_CLOSE_M = 0.03   # 3cm = fully closed
 PINCH_OPEN_M  = 0.07   # 7cm = fully open
 
-# ── Landmark indices ─────────────────────────────────────────────────────────
+# Landmark indices
 WRIST     = 0
 THUMB_TIP = 4
 INDEX_TIP = 8
@@ -167,7 +167,7 @@ def main():
                 env.set_gripper(gripper_norm)
                 env.step(q_target)
 
-                # ── Overlay ──────────────────────────────────────────────────
+                # Overlay
                 cx = int((1.0 - norm_lm[WRIST].x) * frame.shape[1])
                 cy = int((1.0 - norm_lm[WRIST].y) * frame.shape[0])
                 cv2.circle(frame, (cx, cy), 8, (0, 255, 0), -1)
