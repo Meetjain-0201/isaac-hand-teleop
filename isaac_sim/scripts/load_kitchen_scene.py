@@ -32,11 +32,11 @@ ROBOT_Z  = TABLE_H
 
 
 def build_scene():
-    # ── Simple Room (walls, floor, ceiling, lighting all included) ────────────
+    # Simple Room (walls, floor, ceiling, lighting all included) 
     cfg_room = sim_utils.UsdFileCfg(usd_path=ROOM_USD)
     cfg_room.func("/World/Room", cfg_room, translation=(0.0, 0.0, 0.0))
 
-    # ── Table ─────────────────────────────────────────────────────────────────
+    # Table
     cfg_table = sim_utils.CuboidCfg(
         size=(0.9, 0.6, TABLE_H),
         rigid_props=sim_utils.RigidBodyPropertiesCfg(kinematic_enabled=True),
@@ -46,7 +46,7 @@ def build_scene():
     )
     cfg_table.func("/World/Table", cfg_table, translation=(0.5, 0.0, TABLE_H / 2.0))
 
-    # ── Cup ───────────────────────────────────────────────────────────────────
+    # Cup
     cup_cfg = RigidObjectCfg(
         prim_path="/World/Cup",
         spawn=sim_utils.CylinderCfg(
@@ -63,7 +63,7 @@ def build_scene():
     )
     cup = RigidObject(cup_cfg)
 
-    # ── Target zone (red marker) ──────────────────────────────────────────────
+    # Target zone (red marker)
     cfg_target = sim_utils.CylinderCfg(
         radius=0.07,
         height=0.005,
@@ -77,7 +77,7 @@ def build_scene():
         translation=(0.45, -0.2, TABLE_H + 0.003)
     )
 
-    # ── Franka ────────────────────────────────────────────────────────────────
+    # Franka
     franka_cfg = ArticulationCfg(
         prim_path="/World/Franka",
         spawn=sim_utils.UsdFileCfg(usd_path=FRANKA_USD),
